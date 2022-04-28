@@ -1,11 +1,10 @@
 <template>
-  <div class="user" :class="{ selected: selected }">
+  <div class="room" :class="{ selected: selected }">
     <div class="description">
       <div class="name">
-        {{ user.username }} {{ user.self ? " (You)" : "" }}
+        {{ room.name }} {{room.id}}
       </div>
     </div>
-    <div v-if="user.hasNewMessages" class="new-messages">!</div>
   </div>
 </template>
 
@@ -13,15 +12,12 @@
 export default {
   name: "ParticipantsList",
   props: {
-    user: Object,
+    room: Object,
   },
   methods: {
 
   },
   computed: {
-    status() {
-      return this.user.connected ? "online" : "offline";
-    },
   },
 };
 </script>
@@ -31,8 +27,9 @@ export default {
   background-color: #1164a3;
 }
 
-.user {
+.room {
   padding: 10px;
+  cursor: pointer;
 }
 
 .description {

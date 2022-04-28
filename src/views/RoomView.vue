@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="left-panel">
+    {{ roomID }}
+    <!-- <div class="left-panel">
       <participants-list
         v-for="user in users"
         :key="user.userID"
@@ -12,17 +13,17 @@
         :initCode="this.initCode"
       @input="onCodeChange"
       class="right-panel"
-    />
+    /> -->
   </div>
 </template>
 
 <script>
 import socket from "../socket";
-import ParticipantsList from '@/components/ParticipantsList.vue'
+// import ParticipantsList from '@/components/ParticipantsList.vue'
 
 export default {
     name: "RoomView",
-    components: { ParticipantsList },
+    components: {  },
   data() {
     return {
         initCode: "",
@@ -37,7 +38,7 @@ export default {
     }
   },
   mounted() { 
-    this.roomID = this.$router.params;
+    this.roomID = this.$route.params.id;
     this.username = socket.auth.username;
     socket.emit("join-room", this.username, this.roomID, (users) => {
         this.users = users

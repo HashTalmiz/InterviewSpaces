@@ -2,14 +2,12 @@
   <div>
     <div class="left-panel">
       <participants-list
-        v-for="user in users"
-        :key="user.userID"
-        :user="user"
-        :selected="selectedUser === user"
-        @select="onSelectUser(user)"
+        v-for="room in rooms"
+        :key="room.id"
+        :room="room"
+        @click="go(room.id)"
       />
     </div>
-    Poggers
   </div>
 </template>
 
@@ -23,11 +21,24 @@ export default {
   data() {
     return {
       username : null,
-      rooms: []
+      rooms: [{
+        name: "efjw",
+        id: 354353
+      },{
+        name: "dgrsgr",
+        id: 487538
+      },{
+        name: "lolol",
+        id: 98475
+      },{
+        name: "rirfghr",
+        id: 845764
+      }]
     };
   },
   methods: {
     onMessage() {
+      console.log("LOL!!!!!!!!!")
     //   if (this.selectedUser) {
     //     socket.emit("private message", {
     //       content,
@@ -39,6 +50,9 @@ export default {
     //     });
     //   }
     },
+    go(roomID){
+      this.$router.push(`/room/${roomID}`)
+    }
   },
   mounted() {
     socket.connect()
@@ -46,7 +60,7 @@ export default {
     socket.on("connect", () => {
       console.log("Connected to sarbhar!", socket.id)
     });
-
+    
     // socket.on("disconnect", () => {
     //   this.users.forEach((user) => {
     //     if (user.self) {
