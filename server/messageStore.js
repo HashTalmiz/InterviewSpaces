@@ -56,7 +56,7 @@ class InMemoryDB extends DB {
     this.roomPpl[roomID].delete(pID);
   }
   updateCode(roomID, code) {
-    roomCode[roomID] = code;
+    this.roomCode[roomID] = code;
     return code;
   }
 }

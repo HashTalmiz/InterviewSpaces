@@ -22,17 +22,17 @@ export default {
     return {
       username : null,
       rooms: [{
-        name: "efjw",
-        id: 354353
+        name: "room1",
+        id: "4h354hb4445jh"
       },{
-        name: "dgrsgr",
-        id: 487538
+        name: "room2",
+        id: "6jh5t34h53444"
       },{
         name: "lolol",
-        id: 98475
+        id: "ejgfh83437422"
       },{
-        name: "rirfghr",
-        id: 845764
+        name: "room4",
+        id: "h345h34j34jf9"
       }]
     };
   },

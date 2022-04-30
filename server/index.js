@@ -1,7 +1,7 @@
 const httpServer = require("http").createServer();
 const io = require("socket.io")(httpServer, {
   cors: {
-    origin: "http://localhost:8080",
+    origin: ["http://localhost:8080","http://localhost:8081"]
   },
 });
 
@@ -57,24 +57,26 @@ io.on("connection", (socket) => {
     const usersList = DB.joinRoom(username, roomID)
     socket.join(roomID);
     const {id} = socket
-    console.log(socket.handshake)
+    // console.log(socket.handshake)
     // socket.to(roomID).emit("user-joined", {id, username})
-    callback({usersList})
+    callback(usersList)
   });   
 
-  socket.on("code-change", (newCode) => {
+  socket.on("code-change", (roomID, newCode) => {
       // get room id from socketid/userid
       const {id} = socket;
-      const {username} = socket.auth;
+      const {username} = socket.handshake.auth;
       DB.updateCode(roomID, newCode);
-      socket.to(roomID).emit("code-reflect", newCode);
+      socket.to(roomID).emit("code-reflect", {newCode, id});
+      // console.log(roomID, newCode, id)
   });
   
 
-  socket.on("leave-room", async (data) => {
-    DB.leaveRoom(data.pID, data.roomID)
-    socket.to(data.roomID).emit("user-left", data)
-    socket.leave(data.roomID);
+  socket.on("leave-room", async (sID, roomID) => {
+    DB.leaveRoom(sID, roomID)
+    socket.to(roomID).emit("user-left", sID)
+    socket.leave(roomID);
+    console.log(sID+" left")
   })
 
 

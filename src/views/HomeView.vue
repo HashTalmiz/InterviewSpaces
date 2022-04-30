@@ -13,7 +13,7 @@ import socket from "../socket";
 export default {
   name: 'HomeView',
   components: {
-    SelectUsername
+    SelectUsername,
   },
   data() {
     return {

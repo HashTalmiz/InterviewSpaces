@@ -1,29 +1,30 @@
 <template>
   <div>
     {{ roomID }}
-    <!-- <div class="left-panel">
-      <participants-list
+    <div class="left-panel">
+     <li v-for="user in this.users" :key="user">
+    {{ user }}
+  </li>
+      <!-- <participants-list
         v-for="user in users"
         :key="user.userID"
         :user="user.username"
-      />
+      /> -->
     </div>
-    <code-panel
-        v-if="initCode.length() > 0"
-        :initCode="this.initCode"
-      @input="onCodeChange"
-      class="right-panel"
-    /> -->
+    <div class="right-panel">
+      <code-panel :textCode="initCode" @codeChange="onCodeChange"/>  
+    </div>
   </div>
 </template>
 
 <script>
 import socket from "../socket";
 // import ParticipantsList from '@/components/ParticipantsList.vue'
+import CodePanel from "@/components/CodePanel.vue";
 
 export default {
     name: "RoomView",
-    components: {  },
+    components: { CodePanel },
   data() {
     return {
         initCode: "",
@@ -33,8 +34,9 @@ export default {
     };
   },
   methods: {
-    onCodeChange(newCode) {
-        socket.emit("code-change", newCode)
+    onCodeChange(data) {
+        socket.emit("code-change",this.roomID, data)
+        // console.log(data.code)
     }
   },
   mounted() { 
@@ -56,14 +58,13 @@ export default {
         this.users = this.users.filter((name) => name !== id)
     });
 
-    socket.on("code-reflect", (code, from) => {
+    socket.on("code-reflect", (data) => {
         // update code
-        console.log(code)
-        console.log(from)
+        this.initCode = data.newCode
     })
   },
   unmounted() {
-      socket.emit("leave-room");
+      socket.emit("leave-room". socket.id, this.roomID);
     // socket.off("connect");
     // socket.off("disconnect");
     // socket.off("users");
@@ -88,5 +89,6 @@ export default {
 
 .right-panel {
   margin-left: 260px;
+  height: 100vh;
 }
 </style>
