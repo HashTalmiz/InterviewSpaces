@@ -40,104 +40,53 @@ const DB = new InMemoryDB();
 // DB.RoomList.add("1234");
 io.on("connection", (socket) => {
   console.log(`POG! WE GOT A CONNECT! ${socket.id}`)
-  // persist session
-  // sessionStore.saveSession(socket.sessionID, {
-  //   userID: socket.userID,
-  //   username: socket.username,
-  //   connected: true,
-  // });
 
-  // emit session details
-  // socket.emit("session", {
-  //   sessionID: socket.sessionID,
-  //   userID: socket.userID,
-  // });
+  socket.on("authenticate", (userInfo) => {
+    // console.log("authenticated user ",userInfo.username)
+    socket.data = { userInfo } ;
+    // console.log(socket.data.userInfo)
+    socket.isAuth = true;
+    DB.socketToUser[socket.id] = userInfo;
+  });
 
-  socket.on("join-room", (username, roomID, callback) => {
-    const usersList = DB.joinRoom(username, roomID)
+  socket.on("de-authenticate", () => {
+    // console.log("authenticated user ",userInfo.username)
+    socket.data.userInfo = {};
+    socket.isAuth = false;
+    DB.socketToUser.delete(socket.id);
+  });
+
+  
+  socket.on("join-room", (roomID, callback) => {
+    // if not auth==> diconnect
+
+
+    console.log(socket.data.userInfo)
+    socket.data.userInfo = {...socket.data.userInfo, roomID, socID: socket.id};
+    DB.joinRoom(socket.id, roomID)
+    const usersList = DB.getRoomPeople(roomID)
+    const code = DB.getCode(roomID);
     socket.join(roomID);
-    const {id} = socket
-    // console.log(socket.handshake)
-    // socket.to(roomID).emit("user-joined", {id, username})
-    callback(usersList)
+    socket.to(roomID).emit("user-joined", socket.data.userInfo)
+    callback({usersList, code})
   });   
 
-  socket.on("code-change", (roomID, newCode) => {
-      // get room id from socketid/userid
-      const {id} = socket;
-      const {username} = socket.handshake.auth;
-      DB.updateCode(roomID, newCode);
-      socket.to(roomID).emit("code-reflect", {newCode, id});
-      // console.log(roomID, newCode, id)
+  socket.on("code-change", (newCode) => {
+      // check auth
+
+      const { userInfo } = socket.data;
+      DB.updateCode(userInfo.roomID, newCode);
+      socket.to(userInfo.roomID).emit("code-reflect", { newCode, userInfo });
   });
   
-
-  socket.on("leave-room", async (sID, roomID) => {
-    DB.leaveRoom(sID, roomID)
-    socket.to(roomID).emit("user-left", sID)
-    socket.leave(roomID);
-    console.log(sID+" left")
+  socket.on("leave-room", () => {
+    const {username, socID, roomID} = socket.data.userInfo;
+    DB.leaveRoom(socID, roomID)
+    socket.to(roomID).emit("user-left", socket.data.userInfo)
+    console.log(username+" left "+roomID)
   })
+  // socket.on("disconnecting", leaveRoom)
 
-
-
-
-  // // fetch existing users
-  // const users = [];
-  // const messagesPerUser = new Map();
-  // messageStore.findMessagesForUser(socket.userID).forEach((message) => {
-  //   const { from, to } = message;
-  //   const otherUser = socket.userID === from ? to : from;
-  //   if (messagesPerUser.has(otherUser)) {
-  //     messagesPerUser.get(otherUser).push(message);
-  //   } else {
-  //     messagesPerUser.set(otherUser, [message]);
-  //   }
-  // });
-  // sessionStore.findAllSessions().forEach((session) => {
-  //   users.push({
-  //     userID: session.userID,
-  //     username: session.username,
-  //     connected: session.connected,
-  //     messages: messagesPerUser.get(session.userID) || [],
-  //   });
-  // });
-  // socket.emit("users", users);
-
-  // // notify existing users
-  // socket.broadcast.emit("user connected", {
-  //   userID: socket.userID,
-  //   username: socket.username,
-  //   connected: true,
-  //   messages: [],
-  // });
-
-  // forward the private message to the right recipient (and to other tabs of the sender)
-  // socket.on("private message", ({ content, to }) => {
-  //   const message = {
-  //     content,
-  //     from: socket.userID,
-  //     to,
-  //   };
-  //   socket.to(to).to(socket.userID).emit("private message", message);
-  //   messageStore.saveMessage(message);
-  // });
-
-  // notify users upon disconnection
-  // socket.on("disconnect", async () => {
-  //   const matchingSockets = await io.in(socket.userID).allSockets();
-  //   const isDisconnected = matchingSockets.size === 0;
-  //   if (isDisconnected) {
-  //     // notify other users
-  //     socket.broadcast.emit("user disconnected", socket.userID);
-  //     // update the connection status of the session
-  //     sessionStore.saveSession(socket.sessionID, {
-  //       userID: socket.userID,
-  //       username: socket.username,
-  //       connected: false,
-  //     });
-  //   }
-  // });
 });
 
 const PORT = process.env.PORT || 3000;

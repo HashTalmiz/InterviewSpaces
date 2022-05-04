@@ -1,5 +1,5 @@
 <template>
-  <div class="room" :class="{ selected: selected }">
+  <div class="room">
     <div class="description">
       <div class="name">
         {{ room.name }} {{room.id}}

@@ -33,27 +33,39 @@ class InMemoryDB extends DB {
     super();
     this.activeUsers = new Set();
     this.RoomList = new Set(); // [rid1, rid2,...]
-    this.roomPpl = new Map() // rid -> [p1, p2...]
+    this.roomPpl = new Map() // rid -> [socID1, socID2...]
     this.roomCode = new Map() // rid-> String
+    this.socketToUser = new Map() // socID - {id,username,....}
   }
   getRooms() {
     return this.RoomList;
   }
-  joinRoom(pID, roomID) {
-    if(this.activeUsers.has(pID)) 
+  getRoomPeople(roomID) {
+    // return ppl = for all  socketToUser[ this.roomPpl[roomID] ]
+    const ppl = Array.from(this.roomPpl[roomID], socID => this.socketToUser[socID])
+    return ppl;
+  }
+  joinRoom(socID, roomID) {
+    if(this.activeUsers.has(socID)) 
       return false;
-    this.activeUsers.add(pID)
+    this.activeUsers.add(socID)
     this.roomPpl[roomID] = this.roomPpl[roomID] || new Set();
-    this.roomPpl[roomID].add(pID);
-    console.log(pID + " has joined room " + roomID)
-    return [...this.roomPpl[roomID]];
+    this.roomPpl[roomID].add(socID);
+    console.log(socID + " has joined room " + roomID)
+    return true;
   }
 
-  leaveRoom(pID, roomID) {
-    if(!this.activeUsers.has(pID)) 
+  leaveRoom(socID, roomID) {
+    if(!this.activeUsers.has(socID)) 
       return false;
-    this.activeUsers.delete(pID)
-    this.roomPpl[roomID].delete(pID);
+    this.activeUsers.delete(socID)
+    this.roomPpl[roomID].delete(socID);
+    return true;
+  }
+  getCode(roomID) {
+    // if(this.roomCode[roomID])
+      return this.roomCode[roomID];
+    // return "Hello World!"
   }
   updateCode(roomID, code) {
     this.roomCode[roomID] = code;

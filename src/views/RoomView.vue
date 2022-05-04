@@ -2,8 +2,8 @@
   <div>
     {{ roomID }}
     <div class="left-panel">
-     <li v-for="user in this.users" :key="user">
-    {{ user }}
+     <li v-for="user in this.users" :key="user._id">
+    {{ user.username }}
   </li>
       <!-- <participants-list
         v-for="user in users"
@@ -34,16 +34,22 @@ export default {
     };
   },
   methods: {
-    onCodeChange(data) {
-        socket.emit("code-change",this.roomID, data)
-        // console.log(data.code)
+    onCodeChange(newCode) {
+        socket.emit("code-change", newCode)
     }
   },
   mounted() { 
     this.roomID = this.$route.params.id;
-    this.username = socket.auth.username;
-    socket.emit("join-room", this.username, this.roomID, (users) => {
-        this.users = users
+    // console.log(typeof socket.auth)
+    if(typeof socket.auth === 'undefined')
+      this.$router.push('/')
+
+
+    this.username = socket.auth.userInfo.username;
+    socket.emit("join-room", this.roomID, ({usersList, code}) => {
+        this.users = usersList;
+        if(code && code.length > 0)
+          this.initCode = code;
     });
 
     // socket.on("usersList", (users) => {
@@ -51,26 +57,26 @@ export default {
     // });
 
     socket.on("user-joined", (user) => {
-        this.users.append(user)
+        this.users.push(user)
     });
 
-    socket.on("user-disconnected", (id) => {
-        this.users = this.users.filter((name) => name !== id)
+    socket.on("user-left", (user) => {
+        this.users = this.users.filter((name) => name._id !== user._id)
     });
 
     socket.on("code-reflect", (data) => {
         // update code
+        console.log(data)
         this.initCode = data.newCode
+        console.log(data.username + " just changed the code")
     })
   },
-  unmounted() {
-      socket.emit("leave-room". socket.id, this.roomID);
-    // socket.off("connect");
-    // socket.off("disconnect");
-    // socket.off("users");
-    // socket.off("user connected");
-    // socket.off("user disconnected");
-    // socket.off("private message");
+  beforeUnmount() {
+      socket.emit("leave-room");
+      console.log("left", this.roomID)
+      socket.off("user-joined")
+      socket.off("user-left")
+      socket.off("code-reflect")
   },
 };
 </script>

@@ -22,12 +22,17 @@ export default {
   },
   methods: {
     onUsernameSelection(username) {
-      console.log(username)
       this.usernameAlreadySelected = true;
-      socket.auth = { username }
+      socket.auth = {
+          userInfo : { 
+            _id: Math.floor(100000 + Math.random() * 900000),
+            username,
+            firstName: "John",
+            LastName: "Doent",
+            email: "pog@notpog.com"
+          }
+        };
       this.$router.push({ name: 'RoomsList'})
-      // socket.auth = { username };
-      // socket.connect();
     },
   },
   created() {
