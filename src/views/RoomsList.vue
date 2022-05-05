@@ -61,9 +61,15 @@ export default {
     socket.on("connect", () => {
       console.log("Connected to sarbhar!", socket.id)
     });
+
+    socket.on("disconnect", (err) => {
+      if(err === "io server disconnect")
+        this.$router.push("/")
+    });
   },
   beforeUnmount() {
-    socket.emit("de-authenticate")
+    // bad idea; it runs when redirecting to a room too
+    // socket.emit("de-authenticate")
   }
 //   destroyed() {
     // socket.off("connect");

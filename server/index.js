@@ -9,11 +9,8 @@ const crypto = require("crypto");
 const { SocketAddress } = require("net");
 const randomId = () => crypto.randomBytes(8).toString("hex");
 
-// const { InMemorySessionStore } = require("./sessionStore");
-// const sessionStore = new InMemorySessionStore();
-
 const { InMemoryDB } = require("./messageStore");
-const DB = new InMemoryDB();
+const CacheDB = new InMemoryDB();
 
 // io.use((socket, next) => {
 //   const sessionID = socket.handshake.auth.sessionID;
@@ -37,35 +34,35 @@ const DB = new InMemoryDB();
 // });
 
 
-// DB.RoomList.add("1234");
+// CacheDB.RoomList.add("1234");
 io.on("connection", (socket) => {
   console.log(`POG! WE GOT A CONNECT! ${socket.id}`)
 
   socket.on("authenticate", (userInfo) => {
     // console.log("authenticated user ",userInfo.username)
-    socket.data = { userInfo } ;
+    socket.data = { userInfo };
     // console.log(socket.data.userInfo)
     socket.isAuth = true;
-    DB.socketToUser[socket.id] = userInfo;
+    CacheDB.socketToUser[socket.id] = userInfo;
   });
 
-  socket.on("de-authenticate", () => {
-    // console.log("authenticated user ",userInfo.username)
-    socket.data.userInfo = {};
-    socket.isAuth = false;
-    DB.socketToUser.delete(socket.id);
-  });
+  // socket.on("de-authenticate", () => {
+  //   console.log("DE-authenticated user ",socket.data.userInfo.username)
+  //   socket.data.userInfo = {lol:"lol"};
+  //   socket.isAuth = false;
+  //   CacheDB.socketToUser.delete(socket.id);
+  // });
 
   
   socket.on("join-room", (roomID, callback) => {
     // if not auth==> diconnect
-
-
-    console.log(socket.data.userInfo)
+    if(socket.isAuth === undefined)
+      socket.disconnect()
+      
     socket.data.userInfo = {...socket.data.userInfo, roomID, socID: socket.id};
-    DB.joinRoom(socket.id, roomID)
-    const usersList = DB.getRoomPeople(roomID)
-    const code = DB.getCode(roomID);
+    CacheDB.joinRoom(socket.id, roomID)
+    const usersList = CacheDB.getRoomPeople(roomID)
+    const code = CacheDB.getCode(roomID);
     socket.join(roomID);
     socket.to(roomID).emit("user-joined", socket.data.userInfo)
     callback({usersList, code})
@@ -73,19 +70,25 @@ io.on("connection", (socket) => {
 
   socket.on("code-change", (newCode) => {
       // check auth
+      // socket.disconnect("not pog bro", 343)
+      if(socket.isAuth === undefined)
+        socket.disconnect()
 
       const { userInfo } = socket.data;
-      DB.updateCode(userInfo.roomID, newCode);
+      CacheDB.updateCode(userInfo.roomID, newCode);
       socket.to(userInfo.roomID).emit("code-reflect", { newCode, userInfo });
   });
-  
-  socket.on("leave-room", () => {
+  const leaveRoom = () => {
+    if(socket.isAuth === undefined)
+      return
+      
     const {username, socID, roomID} = socket.data.userInfo;
-    DB.leaveRoom(socID, roomID)
+    CacheDB.leaveRoom(socID, roomID)
     socket.to(roomID).emit("user-left", socket.data.userInfo)
     console.log(username+" left "+roomID)
-  })
-  // socket.on("disconnecting", leaveRoom)
+  }
+  socket.on("leave-room",leaveRoom )
+  socket.on("disconnecting", leaveRoom)
 
 });
 

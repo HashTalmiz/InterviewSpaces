@@ -1,10 +1,9 @@
 <template>
-  <div>
-    {{ roomID }}
+  <div class="panel">
     <div class="left-panel">
      <li v-for="user in this.users" :key="user._id">
-    {{ user.username }}
-  </li>
+       {{ user.username }}
+      </li>
       <!-- <participants-list
         v-for="user in users"
         :key="user.userID"
@@ -12,7 +11,9 @@
       /> -->
     </div>
     <div class="right-panel">
+      <div class="code-header">AYO HEADER UP HERE</div>
       <code-panel :textCode="initCode" @codeChange="onCodeChange"/>  
+      <div class="code-footer">AYO FOOTER DOWN HERE</div>
     </div>
   </div>
 </template>
@@ -41,7 +42,7 @@ export default {
   mounted() { 
     this.roomID = this.$route.params.id;
     // console.log(typeof socket.auth)
-    if(typeof socket.auth === 'undefined')
+    if(socket.auth === undefined)
       this.$router.push('/')
 
 
@@ -51,10 +52,6 @@ export default {
         if(code && code.length > 0)
           this.initCode = code;
     });
-
-    // socket.on("usersList", (users) => {
-    //     this.users = users
-    // });
 
     socket.on("user-joined", (user) => {
         this.users.push(user)
@@ -66,14 +63,13 @@ export default {
 
     socket.on("code-reflect", (data) => {
         // update code
-        console.log(data)
+        // console.log(data)
         this.initCode = data.newCode
-        console.log(data.username + " just changed the code")
+        // console.log(data.userInfo.username + " just changed the code")
     })
   },
   beforeUnmount() {
       socket.emit("leave-room");
-      console.log("left", this.roomID)
       socket.off("user-joined")
       socket.off("user-left")
       socket.off("code-reflect")
@@ -82,19 +78,37 @@ export default {
 </script>
 
 <style scoped>
+li {
+  list-style: lower-roman;
+}
+.panel {
+  display: flex;
+}
 .left-panel {
+  padding: 10px;
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 260px;
+  width: 240px;
   overflow-x: hidden;
-  background-color: #3f0e40;
+  background-color: #088d65;
   color: white;
 }
 
 .right-panel {
   margin-left: 260px;
   height: 100vh;
+  padding: 0;
+  flex-grow: 1;
 }
+.code-header{
+  padding: 1.5em;
+  background-color: rgb(61, 0, 136);
+}
+.code-footer {
+  padding: 1.5em;
+  background-color: rgb(61, 0, 136);
+}
+
 </style>

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <select v-model="language" @change="languageChange" name="languageOps" id="langOps">
+    <!-- <select v-model="language" @change="languageChange" name="languageOps" id="langOps">
       <option value="javascript">JS</option>
       <option value="text/x-c++src" >C++</option>
       <option value="java" >Java</option>
       <option value="python"> Python </option>
-  </select>
+  </select> -->
     <textarea v-model="content" id="codeArea"></textarea>
   </div>
 </template>
@@ -105,6 +105,7 @@ int main() {
         if(origin !== 'setValue')
           this.$emit('codeChange',instance.getValue())
       })
+      console.log(this.cm.display)
     },
     methods: {
       languageChange() {
@@ -123,6 +124,11 @@ int main() {
   };
 </script>
 
-<style scoped>
+<style>
+
+.CodeMirror {
+  min-height: calc(100vh - 10em);
+  /* height: 100%; */
+}
 
 </style>
