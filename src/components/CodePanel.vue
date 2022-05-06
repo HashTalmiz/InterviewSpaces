@@ -1,11 +1,11 @@
 <template>
   <div>
-    <!-- <select v-model="language" @change="languageChange" name="languageOps" id="langOps">
+    <select v-model="language" @change="languageChange" name="languageOps" id="langOps">
       <option value="javascript">JS</option>
-      <option value="text/x-c++src" >C++</option>
+      <option value="text/x-c++src">C++</option>
       <option value="java" >Java</option>
       <option value="python"> Python </option>
-  </select> -->
+  </select>
     <textarea v-model="content" id="codeArea"></textarea>
   </div>
 </template>
@@ -74,7 +74,7 @@
     },
     data() {
       return {
-          language: '',
+          language: 'text/x-c++src',
           content:`#include<bits/stdc++.h>
 
 int main() {
@@ -105,7 +105,7 @@ int main() {
         if(origin !== 'setValue')
           this.$emit('codeChange',instance.getValue())
       })
-      console.log(this.cm.display)
+      // console.log(this.cm.display)
     },
     methods: {
       languageChange() {
