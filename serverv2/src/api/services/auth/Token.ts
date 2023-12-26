@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
-import db from '../../db/prisma';
+import DB from '../../../db/DB';
+
 import config from '../../../common/config';
 import { IUser } from '../../../common/interfaces/auth';
 import {VerifyTokenStatus} from "../../../common/constants";
@@ -9,6 +10,7 @@ import {TokenExpiredError, verify} from "jsonwebtoken";
 class Token {
     public token: string;
     public refreshToken: string;
+    private static db: DB;
 
     constructor(token?: string, refreshToken?: string) {
         if (token) {
@@ -17,6 +19,7 @@ class Token {
         if (refreshToken) {
             this.refreshToken = refreshToken;
         }
+        Token.db = new DB();2
     }
 
     createToken(user: IUser) {
@@ -27,18 +30,17 @@ class Token {
         });
     }
 
-    async createRefreshToken(userEmail: string) {
+    createRefreshToken(userEmail: string) {
         this.refreshToken = jwt.sign({ type: 'refresh' }, config.authSecret, {
             expiresIn: '2h' // 1 hour
         });
 
-        await this.saveRefreshToken(userEmail);
-
+        this.saveRefreshToken(userEmail);
         return;
     }
 
     private saveRefreshToken(userEmail: string) {
-        return db.users.update({ refreshToken: this.refreshToken }, { where: { email: userEmail } });
+        return Token.db.saveRefreshToken(userEmail, this.refreshToken)
     }
 
     validateRefreshToken(refreshToken: string) {
@@ -55,7 +57,7 @@ class Token {
                     });
                 } else {
                     try {
-                        const user = await db.users.findOne({ raw: true, where: { refreshToken } });
+                        const user = await Token.db.getUserByRefreshToken(this.refreshToken)
                         res(user);
                     } catch (e) {
                         rej(e);
@@ -71,7 +73,7 @@ class Token {
         }
 
         try {
-            verify(this.token, config.authSecret, { algorithms: ["RS256"] });
+            verify(this.token, config.authSecret);
             return VerifyTokenStatus.SUCCESS;
         }
         catch (err) {

@@ -1,6 +1,6 @@
 import {Authentication} from "../services/auth/Authentication";
-import {NextFunction, Request, Response} from "express";
-import {ICustomErrorResponse} from "../../common/interfaces/responses";
+import {Request, Response} from "express";
+
 import {errorHandlingWrapper} from "../../responses/ErrorHandler";
 
 

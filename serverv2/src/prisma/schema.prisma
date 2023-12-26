@@ -10,10 +10,12 @@ generator client {
 model User {
   id        String      @id @default(uuid()) @unique
   email     String   @unique
+  password  String
   firstName      String
-  lastName      String?
+  lastName      String
   createdAt DateTime @default(now())
   inRoom Participants?
+  refreshToken String?
 }
 
 model Editor {

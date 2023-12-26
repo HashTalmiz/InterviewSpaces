@@ -1,10 +1,12 @@
-import db from '../../db/prisma';
+import DB from '../../../db/DB';
+import {IUser} from "../../../common/interfaces/auth";
 
 class User {
     public firstName: string;
     public lastName: string;
     public email: string;
     public passwordHash: string;
+    private static db: DB = new DB();
 
     constructor(firstName: string | null, lastName: string | null, email: string | null) {
         if (firstName && lastName) {
@@ -20,15 +22,12 @@ class User {
         this.passwordHash = passwordHash;
     }
 
-   static doesUserExist(email: string) {
-        return db.users.findOne({
-            raw: true,
-            where: { email }
-        });
+   static async doesUserExist(email: string) {
+        return await User.db.getUserByEmail(email);
     }
 
     saveUser() {
-        return db.users.create({
+        return User.db.createUser({
             firstName: this.firstName,
             lastName: this.lastName,
             email: this.email,
@@ -36,12 +35,8 @@ class User {
         });
     }
 
-    getUser(userId: number) {
-        return db.users.findOne({
-            raw: true,
-            where: { id: userId },
-            attributes: ['firstName', 'lastName', 'email']
-        });
+    getUser(userId: string) {
+        return User.db.getUserById(userId);
     }
 }
 

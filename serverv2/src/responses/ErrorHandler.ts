@@ -6,6 +6,7 @@ import InternalServerError from './serverErrors/InternalServerError';
 
 import { ICustomErrorResponse } from "../common/interfaces/responses";
 import { Request, Response, NextFunction } from "express";
+import Conflict from "./clientErrors/Conflict";
 
 
 export const errorHandlingWrapper = (fn: any) => (req: Request, res: Response, next: NextFunction) => Promise.resolve(fn(req, res, next)).catch(next);
@@ -18,7 +19,8 @@ export const errorHandler = (err: Error | ICustomErrorResponse, req: Request, re
         err instanceof NotFound ||
         err instanceof Unauthorized ||
         err instanceof UnprocessableEntity ||
-        err instanceof InternalServerError
+        err instanceof InternalServerError ||
+        err instanceof Conflict
     ) {
         return reportCustomError(err, res);
     }

@@ -12,7 +12,7 @@ router.post('/login', loginController);
 
 router.get('/validate', validateToken);
 
-router.post('/protected', authCheck, (req, res) => {
+router.get('/protected', authCheck, (req, res) => {
     res.send({
         success: true
     });

@@ -8,7 +8,7 @@
         "target": "es6",
 
         // enables --noImplicitAny, --noImplicitThis, --alwaysStrict, --strictBindCallApply, --strictNullChecks, --strictFunctionTypes and --strictPropertyInitialization.
-        "strict": true,
+        "strict": false,
         "strictPropertyInitialization": false,
 
         // determine how modules are resolved

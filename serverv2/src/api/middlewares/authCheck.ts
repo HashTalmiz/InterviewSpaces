@@ -8,11 +8,11 @@ const AuthCheck = async (req: Request, res: Response, next: NextFunction) => {
 
     const { headers } = req;
     if (!headers.authorization) {
-        throw new Unauthorized(
+        return next(new Unauthorized(
             "UNAUTHORIZED",
             ErrorDescription.UNAUTHORIZED,
             "access token is required"
-        );
+        ));
     }
 
     const accessToken: string = headers.authorization.replace('Bearer', '').trim();
@@ -20,11 +20,11 @@ const AuthCheck = async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken: IDecodedToken = await auth.validateToken(accessToken);
 
     if (decodedToken === null) {
-        throw new Unauthorized(
+        return next(new Unauthorized(
             'INVALID_TOKEN_FORMAT',
             ErrorDescription.UNAUTHORIZED,
             'invalid token'
-        );
+        ));
     }
 
     // references: https://stackoverflow.com/questions/18875292/passing-variables-to-the-next-middleware-using-next-in-express-js

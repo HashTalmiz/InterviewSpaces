@@ -1,7 +1,5 @@
 // @ts-ignore
 import * as bcrypt from 'bcrypt';
-
-import db from '../../db/prisma';
 import {ILoginIn, IUser} from '../../../common/interfaces/auth';
 
 import {User} from './User';
@@ -72,7 +70,7 @@ class Authentication {
             );
         }
 
-        await token.createToken(userExists);
+        token.createToken(userExists);
         await token.createRefreshToken(userExists.email);
 
         // await this.logUserActivity(userExists.id, 'login');
