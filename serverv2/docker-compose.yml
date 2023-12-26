@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+#    express-socketio:
+#        restart: unless-stopped
+#        # the path of directory for build
+#        build:
+#            context: .
+#            dockerfile: Dockerfile
+#        env_file: .env
+#        # the changes in my local will be reflected into container (development only)
+##        volumes:
+##            - .:/usr/src/app
+#            # - /usr/src/app/node_modules
+#        ports:
+#            - "8080:8080"
+#        expose: # internal ports
+#            - "8080"
+#        environment:
+#            NODE_ENV: development
+#            SERVER_PORT: 8080
+#            REDIS_HOST: "redis"
+#        links:
+#            - "redis"
+    redis:
+        restart: unless-stopped
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
+        expose: 
+            - "6379"
+        hostname: redis
+    postgres:
+        image: postgres
+        ports:
+            - "5432:5432"
+        expose:
+            - "5432"
+        environment:
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+            - POSTGRES_USER=${DATABASE_USER}
+            - POSTGRES_DB=${DATABASE_NAME}
+        restart: unless-stopped
+        hostname: postgres
